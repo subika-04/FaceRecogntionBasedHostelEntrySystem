@@ -29,11 +29,13 @@ export async function recognitionNotificationAdapter() {
         title: r.status === 'UNKNOWN' ? 'Unrecognized face detected' : 'Low-confidence match',
         description: r.student
           ? `${r.student.fullName} matched at ${Math.round((r.confidence || 0) * 100)}% confidence on ${r.recognizedByCamera}.`
+          : r.capturedImageUrl
+          ? `An unrecognized face was captured on ${r.recognizedByCamera}. A photo was saved for review.`
           : `An unrecognized face was captured on ${r.recognizedByCamera}.`,
         timestamp: r.recognizedAt,
         source: NOTIFICATION_SOURCES.RECOGNITION,
         actionUrl: '/recognition/history',
-        metadata: { recognitionId: r.id, camera: r.recognizedByCamera, status: r.status },
+        metadata: { recognitionId: r.id, camera: r.recognizedByCamera, status: r.status, capturedImageUrl: r.capturedImageUrl },
       })
     );
 }

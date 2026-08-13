@@ -107,6 +107,10 @@ app:
   # File Upload Settings
   upload:
     dir: ${UPLOAD_DIR:./uploads/profile_images}
+    # Captured frames from recognition attempts that came back UNKNOWN --
+    # separate from profile_images so a bad/unmatched capture can never be
+    # confused with (or overwrite) an enrolled student's official photo.
+    recognition-dir: ${RECOGNITION_UPLOAD_DIR:./uploads/unrecognized_faces}
 
   # Brute-force protection (Phase A). Applied per-account (see AuthService)
   # in addition to the per-IP limiter below (see LoginRateLimiter) -- the two

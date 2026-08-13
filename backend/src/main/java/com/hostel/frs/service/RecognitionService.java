@@ -16,13 +16,20 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Base64;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -58,6 +65,9 @@ public class RecognitionService {
 
     @Autowired
     private MeterRegistry meterRegistry;
+
+    @Value("${app.upload.recognition-dir}")
+    private String recognitionUploadDir;
 
     @Transactional
     public RecognitionResponse identifyFace(RecognitionRequest request, String username) {
@@ -151,6 +161,16 @@ public class RecognitionService {
         int durationMs = (int) (System.currentTimeMillis() - startTime);
         meterRegistry.counter("frhes.recognition.result.total", "status", status.name()).increment();
 
+        // 2.5. When nobody could be matched, persist the captured frame so
+        // staff/admins have an actual face to look at (and download) instead
+        // of a blank placeholder. Best-effort: a failure here must never
+        // fail the recognition transaction itself, so errors are logged and
+        // swallowed inside saveUnrecognizedFaceImage().
+        String capturedImageUrl = null;
+        if (status == RecognitionStatus.UNKNOWN) {
+            capturedImageUrl = saveUnrecognizedFaceImage(base64ImageClean);
+        }
+
         // 3. Persist transaction history to DB
         RecognitionHistory history = RecognitionHistory.builder()
                 .student(matchedStudent)
@@ -158,6 +178,7 @@ public class RecognitionService {
                 .confidenceScore(BigDecimal.valueOf(confidence).setScale(4, RoundingMode.HALF_UP))
                 .status(status)
                 .recognitionDurationMs(durationMs)
+                .capturedImageUrl(capturedImageUrl)
                 .triggeredBy(user)
                 .build();
 
@@ -173,7 +194,41 @@ public class RecognitionService {
                 .student(mapToStudentResponse(matchedStudent))
                 .confidence(confidence)
                 .recognitionDurationMs(durationMs)
+                .capturedImageUrl(capturedImageUrl)
                 .build();
+    }
+
+    /**
+     * Writes an UNKNOWN recognition attempt's captured frame to disk under
+     * app.upload.recognition-dir, following the same on-disk convention as
+     * StudentService's profile images. Filenames are UUID-based (not tied to
+     * a student ID, since by definition no student was matched) so
+     * concurrent unrecognized captures can never collide.
+     *
+     * Returns the relative URL to store on the history record and hand back
+     * to the frontend (e.g. "/recognition/images/unrecognized_<uuid>.jpg"),
+     * or null if the image couldn't be decoded/written -- in which case the
+     * recognition result itself is still returned normally.
+     */
+    private String saveUnrecognizedFaceImage(String base64ImageClean) {
+        try {
+            byte[] imageBytes = Base64.getDecoder().decode(base64ImageClean);
+            String filename = "unrecognized_" + UUID.randomUUID() + ".jpg";
+
+            Path uploadRoot = Paths.get(recognitionUploadDir).toAbsolutePath().normalize();
+            Files.createDirectories(uploadRoot);
+
+            Path imagePath = uploadRoot.resolve(filename).normalize();
+            Files.write(imagePath, imageBytes);
+
+            return "/recognition/images/" + filename;
+        } catch (IllegalArgumentException e) {
+            log.warn("Could not decode base64 image for unrecognized face capture: {}", e.getMessage());
+            return null;
+        } catch (IOException e) {
+            log.error("Failed to write unrecognized face capture to disk: {}", e.getMessage(), e);
+            return null;
+        }
     }
 
     @Transactional(readOnly = true)
@@ -245,6 +300,7 @@ public class RecognitionService {
                 .recognitionDurationMs(history.getRecognitionDurationMs())
                 .recognizedAt(history.getRecognizedAt())
                 .triggeredByUsername(history.getTriggeredBy().getUsername())
+                .capturedImageUrl(history.getCapturedImageUrl())
                 .build();
     }
 }

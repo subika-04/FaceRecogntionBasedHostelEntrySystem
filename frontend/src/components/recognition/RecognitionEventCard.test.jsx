@@ -1,7 +1,14 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import RecognitionEventCard from './RecognitionEventCard';
+
+vi.mock('../../api/recognitionApi', () => ({
+  fetchCapturedFaceImageBlobUrl: vi.fn().mockResolvedValue('blob:mock-captured-face'),
+  downloadCapturedFaceImage: vi.fn().mockResolvedValue(undefined),
+}));
+
+import { downloadCapturedFaceImage } from '../../api/recognitionApi';
 
 const record = {
   id: 1,
@@ -65,5 +72,37 @@ describe('RecognitionEventCard (full mode)', () => {
   it('shows "Unrecognized face" (not "Unrecognized") for a missing student in full mode', () => {
     render(<RecognitionEventCard record={{ ...record, student: null }} />);
     expect(screen.getByText('Unrecognized face')).toBeInTheDocument();
+  });
+});
+
+describe('RecognitionEventCard (unrecognized face with a captured photo)', () => {
+  const unknownRecord = {
+    ...record,
+    status: 'UNKNOWN',
+    student: null,
+    capturedImageUrl: '/recognition/images/unrecognized_abc.jpg',
+  };
+
+  it('renders the actual captured photo instead of a "?" placeholder once expanded', async () => {
+    render(<RecognitionEventCard record={unknownRecord} />);
+    await userEvent.click(screen.getByRole('button'));
+    await waitFor(() => {
+      expect(screen.getAllByRole('img', { name: /unrecognized face captured by camera/i }).length).toBeGreaterThan(0);
+    });
+    expect(screen.getByText('Captured photo')).toBeInTheDocument();
+  });
+
+  it('lets staff download the captured photo', async () => {
+    render(<RecognitionEventCard record={unknownRecord} />);
+    await userEvent.click(screen.getByRole('button'));
+    const downloadButton = await screen.findByRole('button', { name: /download photo/i });
+    await userEvent.click(downloadButton);
+    expect(downloadCapturedFaceImage).toHaveBeenCalledWith(unknownRecord.capturedImageUrl, `unrecognized-face-${unknownRecord.id}.jpg`);
+  });
+
+  it('does not show the photo panel when no image was captured for an unknown face', async () => {
+    render(<RecognitionEventCard record={{ ...unknownRecord, capturedImageUrl: null }} />);
+    await userEvent.click(screen.getByRole('button'));
+    expect(screen.queryByText('Captured photo')).not.toBeInTheDocument();
   });
 });

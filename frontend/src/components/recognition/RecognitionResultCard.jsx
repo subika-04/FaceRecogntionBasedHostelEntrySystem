@@ -1,5 +1,9 @@
+import { useState } from 'react';
+import { Download } from 'lucide-react';
 import StudentAvatar from '../students/StudentAvatar';
+import CapturedFaceThumbnail from './CapturedFaceThumbnail';
 import ConfidenceMeter from './ConfidenceMeter';
+import { downloadCapturedFaceImage } from '../../api/recognitionApi';
 import { formatConfidence } from '../../utils/formatters';
 
 // Full-width color band by status -- like a badge reader turning green or
@@ -14,6 +18,8 @@ const BAND_STYLE = {
 
 // result: RecognitionResponse | null
 export default function RecognitionResultCard({ result }) {
+  const [downloading, setDownloading] = useState(false);
+
   if (!result) {
     return (
       <div className="card flex h-full min-h-[220px] flex-col items-center justify-center gap-2 p-6 text-center">
@@ -23,6 +29,15 @@ export default function RecognitionResultCard({ result }) {
   }
 
   const style = BAND_STYLE[result.status] || BAND_STYLE.UNKNOWN;
+
+  const handleDownload = async () => {
+    setDownloading(true);
+    try {
+      await downloadCapturedFaceImage(result.capturedImageUrl, 'unrecognized-face.jpg');
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   return (
     <div className="card overflow-hidden">
@@ -42,6 +57,25 @@ export default function RecognitionResultCard({ result }) {
               <p className="font-id mt-0.5 text-sm text-slate-500 dark:text-slate-400">
                 {result.student.registerNumber} · {result.student.department}
               </p>
+            </div>
+          </div>
+        ) : result.status === 'UNKNOWN' && result.capturedImageUrl ? (
+          <div className="flex items-center gap-4">
+            <CapturedFaceThumbnail capturedImageUrl={result.capturedImageUrl} size={84} rounded={false} />
+            <div className="min-w-0 flex-1">
+              <p className="font-display text-lg font-bold text-ink dark:text-slate-100">No matching student</p>
+              <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
+                This photo was captured and saved so it can be reviewed later.
+              </p>
+              <button
+                type="button"
+                onClick={handleDownload}
+                disabled={downloading}
+                className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-ink hover:bg-slate-50 disabled:opacity-60 dark:border-slate-600 dark:text-slate-100 dark:hover:bg-slate-700"
+              >
+                <Download className="h-3.5 w-3.5" aria-hidden="true" />
+                {downloading ? 'Downloading…' : 'Download photo'}
+              </button>
             </div>
           </div>
         ) : (

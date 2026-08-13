@@ -17,4 +17,7 @@ public class RecognitionHistoryResponse {
     private Integer recognitionDurationMs;
     private LocalDateTime recognizedAt;
     private String triggeredByUsername;
+    // Set only for UNKNOWN records where the captured frame was
+    // successfully persisted. Null otherwise -- see RecognitionHistory.
+    private String capturedImageUrl;
 }

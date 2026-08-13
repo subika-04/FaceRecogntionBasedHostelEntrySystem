@@ -38,6 +38,16 @@ public class RecognitionHistory {
     @Column(name = "recognition_duration_ms", nullable = false)
     private Integer recognitionDurationMs;
 
+    // Populated only when status == UNKNOWN: the frame captured at the
+    // camera is persisted to disk so admins/staff can see the actual face
+    // that failed to match, rather than a blank "?" placeholder, and so it
+    // can be downloaded for follow-up (e.g. manual enrollment). Relative
+    // URL like "/recognition/images/unrecognized_<uuid>.jpg" -- same
+    // pattern as Student.profileImageUrl. Null for MATCHED/LOW_CONFIDENCE
+    // records and for UNKNOWN records where the image failed to persist.
+    @Column(name = "captured_image_url", length = 255)
+    private String capturedImageUrl;
+
     @Column(name = "recognized_at", updatable = false)
     private LocalDateTime recognizedAt;
 

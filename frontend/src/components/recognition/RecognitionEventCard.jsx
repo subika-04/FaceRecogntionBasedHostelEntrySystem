@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Download } from 'lucide-react';
 import StudentAvatar from '../students/StudentAvatar';
+import CapturedFaceThumbnail from './CapturedFaceThumbnail';
 import StatusBadge from '../common/StatusBadge';
 import ConfidenceMeter from './ConfidenceMeter';
+import { downloadCapturedFaceImage } from '../../api/recognitionApi';
 import { formatDateTime, formatConfidence } from '../../utils/formatters';
 
 // record: RecognitionHistoryResponse
@@ -10,11 +12,30 @@ import { formatDateTime, formatConfidence } from '../../utils/formatters';
 //          instead of the full expandable card (used by RecognitionTimeline).
 export default function RecognitionEventCard({ record, compact = false }) {
   const [expanded, setExpanded] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+
+  // No student was matched, but the actual frame was captured -- show the
+  // real face instead of the generic "?" initials placeholder.
+  const isUnrecognizedWithPhoto = !record.student && record.status === 'UNKNOWN' && !!record.capturedImageUrl;
+
+  const handleDownload = async (e) => {
+    e.stopPropagation();
+    setDownloading(true);
+    try {
+      await downloadCapturedFaceImage(record.capturedImageUrl, `unrecognized-face-${record.id}.jpg`);
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   if (compact) {
     return (
       <div className="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-slate-50 dark:hover:bg-slate-700/40">
-        <StudentAvatar profileImageUrl={record.student?.profileImageUrl} name={record.student?.fullName} size={32} />
+        {isUnrecognizedWithPhoto ? (
+          <CapturedFaceThumbnail capturedImageUrl={record.capturedImageUrl} size={32} />
+        ) : (
+          <StudentAvatar profileImageUrl={record.student?.profileImageUrl} name={record.student?.fullName} size={32} />
+        )}
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium text-ink dark:text-slate-100">
             {record.student?.fullName || 'Unrecognized'}
@@ -34,7 +55,11 @@ export default function RecognitionEventCard({ record, compact = false }) {
         className="flex w-full items-center gap-3 text-left"
         aria-expanded={expanded}
       >
-        <StudentAvatar profileImageUrl={record.student?.profileImageUrl} name={record.student?.fullName} size={40} />
+        {isUnrecognizedWithPhoto ? (
+          <CapturedFaceThumbnail capturedImageUrl={record.capturedImageUrl} size={40} />
+        ) : (
+          <StudentAvatar profileImageUrl={record.student?.profileImageUrl} name={record.student?.fullName} size={40} />
+        )}
         <div className="min-w-0 flex-1">
           <p className="truncate font-medium text-ink dark:text-slate-100">
             {record.student?.fullName || 'Unrecognized face'}
@@ -47,6 +72,26 @@ export default function RecognitionEventCard({ record, compact = false }) {
 
       {expanded && (
         <div className="mt-3 space-y-3 border-t border-slate-100 pt-3 dark:border-slate-700">
+          {isUnrecognizedWithPhoto && (
+            <div className="flex items-center gap-4 rounded-lg bg-slate-50 p-3 dark:bg-slate-800/60">
+              <CapturedFaceThumbnail capturedImageUrl={record.capturedImageUrl} size={96} rounded={false} />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-ink dark:text-slate-100">Captured photo</p>
+                <p className="text-xs text-slate-400">
+                  This person did not match any enrolled student. Download the photo to identify them manually.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleDownload}
+                  disabled={downloading}
+                  className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-ink hover:bg-white disabled:opacity-60 dark:border-slate-600 dark:text-slate-100 dark:hover:bg-slate-700"
+                >
+                  <Download className="h-3.5 w-3.5" aria-hidden="true" />
+                  {downloading ? 'Downloading…' : 'Download photo'}
+                </button>
+              </div>
+            </div>
+          )}
           <ConfidenceMeter confidence={record.confidence} status={record.status} />
           <dl className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
             <div>
