@@ -1,0 +1,125 @@
+/**
+ * Scoped entirely to `#printable-report` (imported only where ReportBuilder
+ * is used) so it never affects print behavior on any other page -- the
+ * Sidebar/Topbar/global chrome already handle their own print hiding via
+ * Tailwind's built-in `print:hidden` utility (see Sidebar.jsx/Topbar.jsx),
+ * which this file does not duplicate.
+ */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 18mm 14mm;
+  }
+
+  /* Hide everything that isn't the report itself. Belt-and-braces with the
+     print:hidden utility already on Sidebar/Topbar/ReportExportMenu -- this
+     covers any interactive control that might not have that class yet. */
+  nav,
+  aside,
+  button,
+  select,
+  .report-controls,
+  .analytics-filter-panel,
+  [role='menu'],
+  [aria-haspopup='menu'] {
+    display: none !important;
+  }
+
+  #printable-report {
+    display: block !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: #000 !important;
+    background: #fff !important;
+  }
+
+  /* Running header/footer: hidden on-screen (see ReportHeader.jsx/
+     ReportFooter.jsx's `hidden print:flex`), fixed to the top/bottom of
+     every printed page here. */
+  .report-running-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+  }
+  .report-running-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+  /* Page numbers: Chrome/Chromium's print engine supports @page margin
+     boxes for this without any JS. Not universally supported by every
+     browser's print engine, but degrades harmlessly (no page number shown)
+     rather than breaking anything if unsupported. */
+  @page {
+    @bottom-right {
+      content: 'Page ' counter(page) ' of ' counter(pages);
+      font-size: 8pt;
+      color: #666;
+    }
+  }
+
+  /* Page breaks: force a new page before every major section (redundant
+     with the `break-before-page` Tailwind utility already on ReportSection
+     when `pageBreakBefore` is set -- kept here too since not every browser's
+     print engine honors CSS Fragmentation properties identically). */
+  .break-before-page {
+    break-before: page;
+    page-break-before: always;
+  }
+  .break-after-page {
+    break-after: page;
+    page-break-after: always;
+  }
+
+  /* Avoid awkward mid-element splits across a page boundary: cards, charts,
+     and tables should each stay on one page as a unit wherever they fit. */
+  #printable-report .card,
+  #printable-report table,
+  #printable-report svg,
+  #printable-report section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Orphan headings: never let a section heading print alone at the bottom
+     of a page with its content pushed to the next one. */
+  #printable-report h1,
+  #printable-report h2,
+  #printable-report h3 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  /* Chart proportions: Recharts' ResponsiveContainer sizes to its parent at
+     screen width, which can be wider than the printable area -- constrain
+     it so charts scale down instead of clipping at the page edge. */
+  #printable-report .recharts-wrapper,
+  #printable-report .recharts-responsive-container {
+    max-width: 100% !important;
+  }
+
+  /* High-contrast tables: black text, visible borders on white paper --
+     the on-screen design system's subtle slate borders/backgrounds don't
+     reproduce reliably across printers. */
+  #printable-report table,
+  #printable-report th,
+  #printable-report td {
+    color: #000 !important;
+    border-color: #000 !important;
+  }
+  #printable-report th {
+    background: #eee !important;
+  }
+
+  /* Preserve the display typeface for headings; browsers sometimes
+     substitute a generic serif/sans for print if the web font hasn't
+     finished loading by print time -- this at least keeps the fallback
+     stack consistent with on-screen rendering. */
+  #printable-report h1,
+  #printable-report h2 {
+    font-family: 'Space Grotesk', Inter, system-ui, sans-serif !important;
+  }
+}

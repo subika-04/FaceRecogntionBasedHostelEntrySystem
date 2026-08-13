@@ -1,0 +1,90 @@
+2026-08-12 05:16:45,167 [CRITICAL] [corr=-] app: CONFIG ERROR: FLASK_API_KEY is not set. Refusing to start with an open API.
+2026-08-12 05:16:45,167 [CRITICAL] [corr=-] app: Refusing to start in a non-debug environment with invalid configuration.
+2026-08-12 05:17:11,764 [INFO] [corr=-] matplotlib.font_manager: Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: Non-scalable fonts are not supported
+2026-08-12 05:17:11,994 [INFO] [corr=-] matplotlib.font_manager: generated new fontManager
+2026-08-12 05:17:12,340 [INFO] [corr=-] app.engine.face_engine: Loading InsightFace model pack 'buffalo_l' from /root/.insightface (ctx_id=-1, det_size=640)...
+2026-08-12 05:17:33,731 [INFO] [corr=-] app.engine.face_engine: InsightFace model pack loaded successfully.
+2026-08-12 05:17:33,745 [INFO] [corr=-] app: FRHES AI service initialized. model_ready=True cached_students=0
+2026-08-12 05:17:33,755 [INFO] [corr=-] werkzeug: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.0.2.2:5000
+2026-08-12 05:17:33,755 [INFO] [corr=-] werkzeug: [33mPress CTRL+C to quit[0m
+2026-08-12 05:17:33,756 [INFO] [corr=-] werkzeug:  * Restarting with stat
+2026-08-12 05:17:35,260 [INFO] [corr=-] app.engine.face_engine: Loading InsightFace model pack 'buffalo_l' from /root/.insightface (ctx_id=-1, det_size=640)...
+2026-08-12 05:17:43,433 [INFO] [corr=-] app.engine.face_engine: InsightFace model pack loaded successfully.
+2026-08-12 05:17:43,439 [INFO] [corr=-] app: FRHES AI service initialized. model_ready=True cached_students=0
+2026-08-12 05:17:43,450 [WARNING] [corr=-] werkzeug:  * Debugger is active!
+2026-08-12 05:17:43,450 [INFO] [corr=-] werkzeug:  * Debugger PIN: 551-880-812
+2026-08-12 05:18:47,851 [INFO] [corr=-] app.engine.face_engine: Loading InsightFace model pack 'buffalo_l' from /root/.insightface (ctx_id=-1, det_size=640)...
+2026-08-12 05:25:28,854 [INFO] [corr=-] app.engine.face_engine: Loading InsightFace model pack 'buffalo_l' from /root/.insightface (ctx_id=-1, det_size=640)...
+2026-08-12 05:26:18,322 [INFO] [corr=-] app.engine.face_engine: Loading InsightFace model pack 'buffalo_l' from /root/.insightface (ctx_id=-1, det_size=640)...
+2026-08-12 05:26:50,074 [INFO] [corr=-] app.engine.face_engine: InsightFace model pack loaded successfully.
+2026-08-12 05:26:50,083 [INFO] [corr=-] app: FRHES AI service initialized. model_ready=True cached_students=0
+2026-08-12 05:26:50,103 [INFO] [corr=-] werkzeug: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.0.2.2:5000
+2026-08-12 05:26:50,103 [INFO] [corr=-] werkzeug: [33mPress CTRL+C to quit[0m
+2026-08-12 05:26:50,104 [INFO] [corr=-] werkzeug:  * Restarting with stat
+2026-08-12 05:26:51,722 [INFO] [corr=-] app.engine.face_engine: Loading InsightFace model pack 'buffalo_l' from /root/.insightface (ctx_id=-1, det_size=640)...
+2026-08-12 05:27:02,385 [INFO] [corr=-] app.engine.face_engine: InsightFace model pack loaded successfully.
+2026-08-12 05:27:02,391 [INFO] [corr=-] app: FRHES AI service initialized. model_ready=True cached_students=0
+2026-08-12 05:27:02,401 [WARNING] [corr=-] werkzeug:  * Debugger is active!
+2026-08-12 05:27:02,403 [INFO] [corr=-] werkzeug:  * Debugger PIN: 118-517-304
+2026-08-12 05:27:16,348 [INFO] [corr=-] werkzeug: 127.0.0.1 - - [12/Aug/2026 05:27:16] "GET /health HTTP/1.1" 200 -
+2026-08-12 05:27:46,595 [INFO] [corr=-] app.engine.face_engine: Loading InsightFace model pack 'buffalo_l' from /root/.insightface (ctx_id=-1, det_size=640)...
+2026-08-12 05:27:54,228 [INFO] [corr=-] app.engine.face_engine: InsightFace model pack loaded successfully.
+2026-08-12 05:27:54,233 [INFO] [corr=-] app: FRHES AI service initialized. model_ready=True cached_students=0
+2026-08-12 05:27:54,244 [INFO] [corr=-] werkzeug: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.0.2.2:5000
+2026-08-12 05:27:54,244 [INFO] [corr=-] werkzeug: [33mPress CTRL+C to quit[0m
+2026-08-12 05:27:54,245 [INFO] [corr=-] werkzeug:  * Restarting with stat
+2026-08-12 05:27:55,689 [INFO] [corr=-] app.engine.face_engine: Loading InsightFace model pack 'buffalo_l' from /root/.insightface (ctx_id=-1, det_size=640)...
+2026-08-12 05:28:03,811 [INFO] [corr=-] app.engine.face_engine: InsightFace model pack loaded successfully.
+2026-08-12 05:28:03,817 [INFO] [corr=-] app: FRHES AI service initialized. model_ready=True cached_students=0
+2026-08-12 05:28:03,826 [WARNING] [corr=-] werkzeug:  * Debugger is active!
+2026-08-12 05:28:03,827 [INFO] [corr=-] werkzeug:  * Debugger PIN: 100-750-700
+2026-08-12 05:28:31,424 [INFO] [corr=4aade632] app.api.routes: Quality check: accepted=False reason=NO_FACE_DETECTED sharpness=0.8 lighting=OK
+2026-08-12 05:28:31,425 [INFO] [corr=-] werkzeug: 127.0.0.1 - - [12/Aug/2026 05:28:31] "POST /ai/quality/check HTTP/1.1" 200 -
+2026-08-12 05:28:32,106 [INFO] [corr=e1a1fba3] app.api.routes: No face detected during embedding generation.
+2026-08-12 05:28:32,107 [INFO] [corr=-] werkzeug: 127.0.0.1 - - [12/Aug/2026 05:28:32] "POST /ai/embeddings/generate HTTP/1.1" 200 -
+2026-08-12 05:28:32,116 [WARNING] [corr=d7a68dc5] app.errors: Handled AIServiceError: Missing or invalid X-API-Key header. (UNAUTHORIZED)
+2026-08-12 05:28:32,117 [INFO] [corr=-] werkzeug: 127.0.0.1 - - [12/Aug/2026 05:28:32] "[31m[1mPOST /ai/embeddings/generate HTTP/1.1[0m" 401 -
+2026-08-12 05:28:43,890 [INFO] [corr=-] app.engine.face_engine: Loading InsightFace model pack 'buffalo_l' from /root/.insightface (ctx_id=-1, det_size=640)...
+2026-08-12 05:28:50,998 [INFO] [corr=-] app.engine.face_engine: InsightFace model pack loaded successfully.
+2026-08-12 05:28:51,004 [INFO] [corr=-] app: FRHES AI service initialized. model_ready=True cached_students=0
+2026-08-12 05:28:51,014 [INFO] [corr=-] werkzeug: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.0.2.2:5000
+2026-08-12 05:28:51,014 [INFO] [corr=-] werkzeug: [33mPress CTRL+C to quit[0m
+2026-08-12 05:28:51,015 [INFO] [corr=-] werkzeug:  * Restarting with stat
+2026-08-12 05:28:52,471 [INFO] [corr=-] app.engine.face_engine: Loading InsightFace model pack 'buffalo_l' from /root/.insightface (ctx_id=-1, det_size=640)...
+2026-08-12 05:29:00,784 [INFO] [corr=-] app.engine.face_engine: InsightFace model pack loaded successfully.
+2026-08-12 05:29:00,790 [INFO] [corr=-] app: FRHES AI service initialized. model_ready=True cached_students=0
+2026-08-12 05:29:00,800 [WARNING] [corr=-] werkzeug:  * Debugger is active!
+2026-08-12 05:29:00,800 [INFO] [corr=-] werkzeug:  * Debugger PIN: 321-375-400
+2026-08-12 05:29:27,819 [INFO] [corr=c4e7a129] app.api.routes: Quality check: accepted=False reason=NO_FACE_DETECTED sharpness=560.1 lighting=OK
+2026-08-12 05:29:27,821 [INFO] [corr=-] werkzeug: 127.0.0.1 - - [12/Aug/2026 05:29:27] "POST /ai/quality/check HTTP/1.1" 200 -
+2026-08-12 05:29:28,887 [INFO] [corr=c05daf8c] app.api.routes: No face detected during embedding generation.
+2026-08-12 05:29:28,888 [INFO] [corr=-] werkzeug: 127.0.0.1 - - [12/Aug/2026 05:29:28] "POST /ai/embeddings/generate HTTP/1.1" 200 -
+2026-08-12 05:29:43,049 [INFO] [corr=-] app.engine.face_engine: Loading InsightFace model pack 'buffalo_l' from /root/.insightface (ctx_id=-1, det_size=640)...
+2026-08-12 05:29:50,070 [INFO] [corr=-] app.engine.face_engine: InsightFace model pack loaded successfully.
+2026-08-12 05:29:50,077 [INFO] [corr=-] app: FRHES AI service initialized. model_ready=True cached_students=0
+2026-08-12 05:29:50,089 [INFO] [corr=-] werkzeug: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.0.2.2:5000
+2026-08-12 05:29:50,089 [INFO] [corr=-] werkzeug: [33mPress CTRL+C to quit[0m
+2026-08-12 05:29:50,090 [INFO] [corr=-] werkzeug:  * Restarting with stat
+2026-08-12 05:29:51,536 [INFO] [corr=-] app.engine.face_engine: Loading InsightFace model pack 'buffalo_l' from /root/.insightface (ctx_id=-1, det_size=640)...
+2026-08-12 05:30:00,953 [INFO] [corr=-] app.engine.face_engine: InsightFace model pack loaded successfully.
+2026-08-12 05:30:00,959 [INFO] [corr=-] app: FRHES AI service initialized. model_ready=True cached_students=0
+2026-08-12 05:30:00,969 [WARNING] [corr=-] werkzeug:  * Debugger is active!
+2026-08-12 05:30:00,970 [INFO] [corr=-] werkzeug:  * Debugger PIN: 232-315-887
+2026-08-12 05:30:31,501 [INFO] [corr=2cfa1549] app.api.routes: Quality check: accepted=False reason=MULTIPLE_FACES_DETECTED sharpness=207.5 lighting=OK
+2026-08-12 05:30:31,502 [INFO] [corr=-] werkzeug: 127.0.0.1 - - [12/Aug/2026 05:30:31] "POST /ai/quality/check HTTP/1.1" 200 -
+2026-08-12 05:30:34,968 [INFO] [corr=-] werkzeug: 127.0.0.1 - - [12/Aug/2026 05:30:34] "POST /ai/embeddings/generate HTTP/1.1" 200 -

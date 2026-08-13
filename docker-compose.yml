@@ -1,0 +1,83 @@
+services:
+  mysql:
+    image: mysql:8.3
+    container_name: frhes-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-frhes}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?set DB_ROOT_PASSWORD in .env}
+      MYSQL_USER: ${DB_USER:-frhes_app}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+    ports:
+      - "3307:3306"
+    volumes:
+      - frhes-mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  ai-service:
+    build: ./ai-service
+    container_name: frhes-ai-service
+    restart: unless-stopped
+    environment:
+      FLASK_ENV: production
+      FLASK_API_KEY: ${FLASK_API_KEY:?set FLASK_API_KEY in .env}
+      AI_MODEL_NAME: ${AI_MODEL_NAME:-buffalo_l}
+      AI_CTX_ID: ${AI_CTX_ID:--1}
+    ports:
+      - "5000:5000"
+    volumes:
+      - frhes-model-cache:/home/appuser/.insightface
+      - frhes-ai-logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+  backend:
+    build: ./backend
+    container_name: frhes-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      ai-service:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/${DB_NAME:-frhes}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DB_USERNAME: ${DB_USER:-frhes_app}
+      DB_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
+      FLASK_AI_URL: http://ai-service:5000
+      FLASK_API_KEY: ${FLASK_API_KEY:?set FLASK_API_KEY in .env}
+      SPRING_PROFILES_ACTIVE: prod
+      BOOTSTRAP_ADMIN_USERNAME: ${BOOTSTRAP_ADMIN_USERNAME:-admin}
+      BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-admin@frhes.local}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-}
+    ports:
+      - "8080:8080"
+    volumes:
+      - frhes-uploads:/app/uploads
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: ${FRONTEND_API_BASE_URL:-http://localhost:8080/api/v1}
+    container_name: frhes-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+
+volumes:
+  frhes-mysql-data:
+  frhes-model-cache:
+  frhes-ai-logs:
+  frhes-uploads:

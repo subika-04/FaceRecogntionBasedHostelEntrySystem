@@ -1,0 +1,158 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api/v1
+
+spring:
+  application:
+    name: frhes-backend
+
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/frhes_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      # Flyway now owns the schema (see spring.flyway.* below and
+      # src/main/resources/db/migration). `validate` makes Hibernate check
+      # that every @Entity mapping actually matches the migrated schema at
+      # startup and fail loudly on drift, instead of `update` silently
+      # altering tables in ways that are impossible to review or roll back.
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        # Fixes the classic JPA N+1 query pattern for paginated list screens
+        # (Students, Recognition History, Activity Logs, Users) by batching
+        # the follow-up SELECTs Hibernate issues for lazy associations.
+        default_batch_fetch_size: 25
+        jdbc:
+          batch_size: 25
+        order_inserts: true
+        order_updates: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    baseline-version: 0
+    validate-on-migrate: true
+    out-of-order: false
+
+  cache:
+    type: caffeine   # see CacheConfig for per-region max-size/TTL; swap for Redis if scaling beyond one instance
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # Deliberately narrow: "health" and "info" are safe to expose (and
+        # "health" is what Docker/K8s probes need); metrics/env/beans etc.
+        # are left unexposed by default since they can leak internal detail.
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+      probes:
+        enabled: true
+      status:
+        http-mapping:
+          DEGRADED: 200
+          DOWN: 503
+          OUT_OF_SERVICE: 503
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+    diskspace:
+      enabled: true
+      threshold: 100MB
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+  show-actuator: false
+
+# Application Security Configuration
+app:
+  jwt:
+    # No insecure baked-in fallback here on purpose (the previous default was
+    # a real, working secret shared by every clone of this repo -- see the
+    # audit report's Phase 12 finding). StartupSecurityCheck fails application
+    # boot immediately with a clear message if this is left blank or equal to
+    # a known placeholder, rather than silently starting an insecure service.
+    secret: ${JWT_SECRET:}
+    expiration-ms: ${JWT_EXPIRATION_MS:900000}       # 15 minutes
+    refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:604800000} # 7 days
+
+  # External Flask AI Service Configuration
+  flask-ai:
+    url: ${FLASK_AI_URL:http://localhost:5000}
+    api-key: ${FLASK_API_KEY:}
+
+  # File Upload Settings
+  upload:
+    dir: ${UPLOAD_DIR:./uploads/profile_images}
+
+  # Brute-force protection (Phase A). Applied per-account (see AuthService)
+  # in addition to the per-IP limiter below (see LoginRateLimiter) -- the two
+  # protect against different attack shapes (credential stuffing one account
+  # from many IPs vs. one IP hammering many accounts).
+  security:
+    # Set to true behind HTTPS in production (COOKIE_SECURE=true) -- keeping it
+    # false is what makes local HTTP development work without extra setup.
+    cookie-secure: ${COOKIE_SECURE:false}
+    lockout:
+      max-failed-attempts: ${LOGIN_MAX_FAILED_ATTEMPTS:5}
+      lockout-duration-minutes: ${LOGIN_LOCKOUT_MINUTES:15}
+    login-rate-limit:
+      enabled: ${LOGIN_RATE_LIMIT_ENABLED:true}
+      max-attempts: ${LOGIN_RATE_LIMIT_MAX:10}
+      window-minutes: ${LOGIN_RATE_LIMIT_WINDOW_MINUTES:1}
+    password-policy:
+      min-length: 8
+      require-uppercase: true
+      require-lowercase: true
+      require-digit: true
+      require-special-char: true
+
+  # One-time bootstrap of the very first ADMIN account (see BootstrapAdminRunner).
+  # Only ever creates a user if the `users` table is completely empty, so this
+  # is safe to leave set in .env permanently -- it becomes a no-op after the
+  # first successful startup. Replaces the old manual `HashGen.java` + hand-
+  # written SQL INSERT workflow.
+  bootstrap:
+    admin:
+      enabled: ${BOOTSTRAP_ADMIN_ENABLED:true}
+      username: ${BOOTSTRAP_ADMIN_USERNAME:admin}
+      email: ${BOOTSTRAP_ADMIN_EMAIL:admin@frhes.local}
+      full-name: ${BOOTSTRAP_ADMIN_FULL_NAME:System Administrator}
+      # No default value on purpose -- if unset, BootstrapAdminRunner logs a
+      # clear one-time setup instruction instead of ever using a guessable
+      # baked-in password.
+      password: ${BOOTSTRAP_ADMIN_PASSWORD:}
+
+logging:
+  level:
+    org.springframework.security: INFO
+    com.hostel.frs: DEBUG
+    org.flywaydb: INFO
+  pattern:
+    # %X{correlationId} is populated by CorrelationIdFilter on every request
+    # (previously this placeholder was in the pattern but nothing ever set
+    # the MDC key, so it silently printed blank on every line).
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - [CorrelationID: %X{correlationId}] - %msg%n"
