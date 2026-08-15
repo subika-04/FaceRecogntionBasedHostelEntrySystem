@@ -128,7 +128,7 @@ class FaceEngine:
                     "Loading InsightFace model pack '%s' from %s (ctx_id=%s, det_size=%s)...",
                     self._model_name, self._model_root, self._ctx_id, self._det_size,
                 )
-                self._app = FaceAnalysis(name=self._model_name, root=self._model_root)
+                self._app = FaceAnalysis(name=self._model_name, root=self._model_root, allowed_modules=["detection", "recognition"])
                 self._app.prepare(ctx_id=self._ctx_id, det_size=(self._det_size, self._det_size))
                 self._ready = True
                 logger.info("InsightFace model pack loaded successfully.")
